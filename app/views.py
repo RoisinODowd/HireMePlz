@@ -66,6 +66,21 @@ def register():
     else:
         return render_template("registration.html")
 
+@app.route("/createjoblisting", methods=["GET", "POST"])
+def createjoblisting():
+    if request.method == "POST":
+        id = request.form['id']
+        name = request.form['name']
+        description = request.form['description']
+        if models.Employers.query.filter_by(email=email).first() or models.Applicants.query.filter_by(email=email).first():
+            error = "Email is taken"
+            return render_template("createjoblisting.html", error=error)
+        models.insertListing(name=name, emp_ID=id, description=description)
+        info = request.form['name']+", your listing has been created. You can log in now."
+        return render_template("createjoblisting.html", info=info)
+    else:
+        return render_template("createjoblisting.html")
+
 @app.route('/home')
 def home():
 	if "username" not in session:
@@ -74,7 +89,8 @@ def home():
 		if session["usertype"] == "Applicant":
 			return redirect(url_for("jobs"))
 		elif session["usertype"] == "Employer":
-			return redirect(url_for("applications"))
+			return redirect(url_for("createjoblisting"))
+			#return redirect(url_for("applications"))
 
 @app.route('/jobs', methods=["GET", "POST"])
 def jobs():
